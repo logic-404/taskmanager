@@ -13,7 +13,7 @@ const addTask = async(req, res) => {
     const {title, description, deadline} = req.body;
     try {
         const task = await Task.create({userId : req.user.id, title, description, deadline});
-        res.status(201).json.(task);
+        res.status(201).json(task);
     }
     catch(error) {
         res.status(500).json({message : error.message});
@@ -53,4 +53,4 @@ const deleteTask = async (req, res) => {
     }
 };
 
-module.exports = {getTasks, addTask, updateTask, deleteTask}
+module.exports = {getTasks, addTask, updateTask, deleteTask};
