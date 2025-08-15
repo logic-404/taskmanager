@@ -21,36 +21,48 @@ const addTask = async(req, res) => {
 }
 
 const updateTask = async (req, res) => {
-    const {title, description, completed, deadline} = req.body;
-    try {
-        const task = await Task.findById(req.params.id);
+  const { title, description, completed, deadline } = req.body;
 
-        if (!task) return res.status(404).json({message : 'Task Not Found'});
-
-        task.title = title || task.title;
-        task.description = description || task.description;
-        task.completed = completed ?? task.completed;
-        task.deadline = deadline || task.deadline;
-
-        const updatedTask = await task.save();
-        res.json(updatedTask);
+  try {
+    // If invalid ObjectId, respond 404 right away
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Task Not Found' });
     }
-    catch(error) {
-        res.status(500).json({message : error.message})
+
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return res.status(404).json({ message: 'Task Not Found' });
     }
-}
+
+    task.title = title || task.title;
+    task.description = description || task.description;
+    task.completed = completed ?? task.completed;
+    task.deadline = deadline || task.deadline;
+
+    const updatedTask = await task.save();
+    res.json(updatedTask);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 const deleteTask = async (req, res) => {
-    try {
-        const task = await Task.findById(req.params.id);
-        if (!task) return res.status(404).json({message : 'Task Not Found'});
-    
-        await task.deleteOne();
-        res.json({message : 'Task Deleted'});
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Task Not Found' });
     }
-    catch(error) {
-        res.status(500).json({message : error.message});
+
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return res.status(404).json({ message: 'Task Not Found' });
     }
+
+    await Task.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Task Deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
+
 
 module.exports = {getTasks, addTask, updateTask, deleteTask};
